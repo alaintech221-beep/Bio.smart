@@ -33,9 +33,31 @@
         .input-group { 
             background: var(--card); padding: 12px 15px; border-radius: 15px; margin-top: 10px;
             display: flex; align-items: center; gap: 15px; border: 1px solid #30363d;
+            position: relative; /* Important pour le fix */
         }
-        .input-field { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 0.95rem; }
         
+        .input-field { 
+            flex: 1; 
+            background: transparent !important; /* Force la transparence */
+            border: none; 
+            color: white; 
+            outline: none; 
+            font-size: 0.95rem; 
+            width: 100%;
+        }
+
+        /* --- FIX FOND BLANC (AUTOFILL/PASTE) --- */
+        /* Ceci force le navigateur à utiliser la couleur de la carte au lieu du blanc */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px var(--card) inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+            caret-color: white;
+        }
+
         .preset-container { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
         .preset-btn { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #30363d; cursor: pointer; transition: 0.2s; }
         .preset-btn:hover { transform: scale(1.2); }
@@ -79,8 +101,8 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .track-title { font-size: 2rem; font-weight: 900; margin: 0; line-height: 1.2; }
-        .artist-name { color: var(--theme-color); font-size: 1.2rem; font-weight: 700; margin: 8px 0 30px; }
+        .track-title { font-size: 2rem; font-weight: 900; margin: 0; line-height: 1.2; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .artist-name { color: var(--theme-color); font-size: 1.2rem; font-weight: 700; margin: 8px 0 30px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
 
         @keyframes pulse-border {
             0% { box-shadow: 0 0 0 0 rgba(var(--pulse-rgb), var(--pulse-opacity)); }
@@ -90,12 +112,13 @@
 
         .links-container { display: flex; flex-direction: column; gap: 12px; }
         .smart-link-card {
-            background: rgba(22, 27, 34, 0.7); backdrop-filter: blur(10px); 
+            background: rgba(22, 27, 34, 0.85); backdrop-filter: blur(10px); 
             border: 1px solid rgba(var(--pulse-rgb), 0.5);
             padding: 15px 20px; border-radius: 14px; text-decoration: none; color: white;
             display: flex; align-items: center; justify-content: space-between;
             animation: pulse-border 2s infinite;
         }
+        .smart-link-card:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .smart-link-card i { font-size: 1.6rem; width: 35px; }
         .platform-name { flex: 1; text-align: left; font-weight: 700; margin-left: 10px; font-size: 0.95rem; }
         .play-tag { 
@@ -105,14 +128,23 @@
         }
 
         .copy-link-btn {
-            background: rgba(var(--theme-color-rgb), 0.1); border: 1px solid var(--theme-color); color: var(--theme-color);
-            padding: 10px 20px; border-radius: 50px; font-size: 0.75rem; font-weight: 800;
+            background: rgba(0,0,0, 0.6); border: 1px solid var(--theme-color); color: var(--theme-color);
+            padding: 12px 25px; border-radius: 50px; font-size: 0.75rem; font-weight: 800;
             cursor: pointer; margin-bottom: 30px; display: inline-flex; align-items: center; gap: 8px; text-transform: uppercase;
+            backdrop-filter: blur(5px);
         }
+        .copy-link-btn:hover { background: var(--theme-color); color: black; }
 
         .footer-brand { position: absolute; bottom: 30px; left: 0; width: 100%; text-align: center; font-size: 0.8rem; color: var(--text-dim); text-decoration: none; }
         .footer-brand span { font-weight: 900; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .edit-btn { position: fixed; top: 20px; right: 20px; background: var(--card); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 100; border: 1px solid rgba(255,255,255,0.1); }
+        
+        .edit-btn { 
+            position: fixed; top: 20px; right: 20px; 
+            background: rgba(22, 27, 34, 0.8); color: white; 
+            width: 45px; height: 45px; border-radius: 50%; 
+            display: flex; justify-content: center; align-items: center; 
+            cursor: pointer; z-index: 100; border: 1px solid rgba(255,255,255,0.1); 
+        }
     </style>
 </head>
 <body>
@@ -171,12 +203,18 @@
     <div id="previewSection">
         <div id="bgBlur"></div>
         <div class="edit-btn" id="editBtn" onclick="goBack()"><i class="fas fa-pen"></i></div>
+        
         <img id="resCover" class="cover-art" src="">
         <h2 id="resTitle" class="track-title"></h2>
         <p id="resArtist" class="artist-name"></p>
-        <button class="copy-link-btn" id="copyBtn" onclick="copySmartLink()"><i class="fas fa-link"></i> <span id="copyTxt">Copier mon lien</span></button>
+        
+        <button class="copy-link-btn" id="copyBtn" onclick="copySmartLink()">
+            <i class="fas fa-link"></i> <span id="copyTxt">Copier mon lien</span>
+        </button>
+
         <div id="resLinks" class="links-container"></div>
-        <a href="javascript:location.reload()" class="footer-brand">Powered by <span>221 BEATS</span></a>
+        
+        <a href="https://od.lk/d/OTRfMTQwNTc5NDU5Xw/221beats.apk" class="footer-brand">Powered by <span>221 BEATS</span></a>
     </div>
 
     <script>
@@ -189,7 +227,22 @@
             bp: { name: "Boomplay", icon: "fas fa-play-circle", color: "#e11212" }
         };
 
-        // Sécurisation contre l'injection (XSS)
+        let currentData = {}; // Stocke les données actuelles pour éviter les erreurs de copie
+
+        // Encodage/Décodage Base64 compatible Unicode (emojis, accents)
+        function b64EncodeUnicode(str) {
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+                function toSolidBytes(match, p1) {
+                    return String.fromCharCode('0x' + p1);
+            }));
+        }
+
+        function b64DecodeUnicode(str) {
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+
         function sanitize(str) {
             const div = document.createElement('div');
             div.textContent = str;
@@ -216,13 +269,15 @@
             const color = document.getElementById('shadowColor').value;
             const intensity = document.getElementById('shadowIntensity').value;
             const rgb = hexToRgb(color);
+            document.documentElement.style.setProperty('--theme-color', color);
+            document.documentElement.style.setProperty('--theme-color-rgb', rgb);
             document.documentElement.style.setProperty('--pulse-rgb', rgb);
             document.documentElement.style.setProperty('--pulse-opacity', intensity);
         }
 
         function updateThumb(url) {
             const thumb = document.getElementById('thumbPreview');
-            if(url.length > 10) { thumb.src = encodeURI(url); thumb.style.display = 'block'; }
+            if(url.length > 10) { thumb.src = url; thumb.style.display = 'block'; }
             else { thumb.style.display = 'none'; }
         }
 
@@ -231,35 +286,49 @@
             const params = new URLSearchParams(window.location.search);
             if(params.has('s')) {
                 try {
-                    const data = JSON.parse(decodeURIComponent(escape(atob(params.get('s')))));
+                    // Mode lecture seule (lien partagé)
+                    const jsonStr = b64DecodeUnicode(params.get('s'));
+                    const data = JSON.parse(jsonStr);
+                    currentData = data; // Sauvegarde
                     renderSmartLink(data);
+                    
+                    // En mode lecture, on cache les boutons d'édition et de copie
                     document.getElementById('editBtn').style.display = 'none';
                     document.getElementById('copyBtn').style.display = 'none';
-                } catch(e) { console.error("Erreur data"); }
+                } catch(e) { 
+                    console.error("Erreur de décodage URL:", e); 
+                }
             }
         };
 
         function buildSmartLink() {
             const title = document.getElementById('trackTitle').value.trim();
             const cover = document.getElementById('trackCover').value.trim();
+            
             if(!title || !cover) { showError(); return; }
 
-            const data = {
-                t: sanitize(title),
-                a: sanitize(document.getElementById('trackArtist').value || "Artiste"),
-                c: encodeURI(cover),
+            // Construction de l'objet de données propre
+            currentData = {
+                t: title,
+                a: document.getElementById('trackArtist').value || "Artiste",
+                c: cover,
                 sc: document.getElementById('shadowColor').value,
                 si: document.getElementById('shadowIntensity').value,
                 l: {
-                    yt: document.getElementById('linkYT').value,
-                    sp: document.getElementById('linkSP').value,
-                    sc: document.getElementById('linkSC').value,
-                    tk: document.getElementById('linkTK').value,
-                    am: document.getElementById('linkAM').value,
-                    bp: document.getElementById('linkBP').value
+                    yt: document.getElementById('linkYT').value.trim(),
+                    sp: document.getElementById('linkSP').value.trim(),
+                    sc: document.getElementById('linkSC').value.trim(),
+                    tk: document.getElementById('linkTK').value.trim(),
+                    am: document.getElementById('linkAM').value.trim(),
+                    bp: document.getElementById('linkBP').value.trim()
                 }
             };
-            renderSmartLink(data);
+
+            renderSmartLink(currentData);
+            
+            // En mode création, on affiche le bouton retour
+            document.getElementById('editBtn').style.display = 'flex';
+            document.getElementById('copyBtn').style.display = 'inline-flex';
             window.scrollTo(0,0);
         }
 
@@ -267,9 +336,10 @@
             document.getElementById('resTitle').textContent = data.t;
             document.getElementById('resArtist').textContent = data.a;
             document.getElementById('resCover').src = data.c;
-            document.getElementById('bgBlur').style.backgroundImage = `url(${data.c})`;
+            document.getElementById('bgBlur').style.backgroundImage = `url('${data.c}')`;
             
             const rgbColor = hexToRgb(data.sc || "#00d2ff");
+            document.documentElement.style.setProperty('--theme-color', data.sc);
             document.documentElement.style.setProperty('--pulse-rgb', rgbColor);
             document.documentElement.style.setProperty('--pulse-opacity', data.si || 0.5);
 
@@ -277,16 +347,22 @@
             container.innerHTML = "";
 
             Object.keys(data.l).forEach(key => {
-                if(data.l[key]) {
+                if(data.l[key] && platforms[key]) {
                     let url = data.l[key];
                     if(!url.startsWith('http')) url = 'https://' + url;
-                    const safeUrl = encodeURI(url);
-                    container.innerHTML += `
-                        <a href="${safeUrl}" target="_blank" class="smart-link-card">
-                            <i class="${platforms[key].icon}" style="color:${platforms[key].color}"></i>
-                            <span class="platform-name">${platforms[key].name}</span>
-                            <span class="play-tag">Écouter</span>
-                        </a>`;
+                    
+                    // Création sécurisée des éléments HTML
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.target = "_blank";
+                    link.className = "smart-link-card";
+                    
+                    link.innerHTML = `
+                        <i class="${platforms[key].icon}" style="color:${platforms[key].color}"></i>
+                        <span class="platform-name">${platforms[key].name}</span>
+                        <span class="play-tag">Écouter</span>
+                    `;
+                    container.appendChild(link);
                 }
             });
 
@@ -295,34 +371,38 @@
         }
 
         function copySmartLink() {
-            const data = {
-                t: document.getElementById('resTitle').textContent,
-                a: document.getElementById('resArtist').textContent,
-                c: document.getElementById('resCover').src,
-                sc: document.getElementById('shadowColor').value,
-                si: document.getElementById('shadowIntensity').value,
-                l: {
-                    yt: document.getElementById('linkYT').value,
-                    sp: document.getElementById('linkSP').value,
-                    sc: document.getElementById('linkSC').value,
-                    tk: document.getElementById('linkTK').value,
-                    am: document.getElementById('linkAM').value,
-                    bp: document.getElementById('linkBP').value
-                }
-            };
-            const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-            const fullLink = window.location.origin + window.location.pathname + "?s=" + encoded;
+            if(!currentData.t) return;
+
+            const jsonStr = JSON.stringify(currentData);
+            const encoded = b64EncodeUnicode(jsonStr);
+            
+            // On retire les paramètres existants avant d'ajouter le nouveau
+            const baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            const fullLink = baseUrl + "?s=" + encoded;
             
             navigator.clipboard.writeText(fullLink).then(() => {
-                document.getElementById('copyTxt').innerText = "Lien copié !";
-                setTimeout(() => { document.getElementById('copyTxt').innerText = "Copier mon lien"; }, 2000);
+                const btnTxt = document.getElementById('copyTxt');
+                const originalTxt = btnTxt.innerText;
+                btnTxt.innerText = "Lien copié !";
+                document.getElementById('copyBtn').style.background = "#00d2ff";
+                document.getElementById('copyBtn').style.color = "#000";
+
+                setTimeout(() => { 
+                    btnTxt.innerText = "Copier mon lien"; 
+                    document.getElementById('copyBtn').style.background = "";
+                    document.getElementById('copyBtn').style.color = "";
+                }, 2000);
+            }).catch(err => {
+                console.error('Erreur copie', err);
+                alert("Impossible de copier automatiquement. Le lien est dans la console.");
             });
         }
 
         function goBack() { 
             document.getElementById('editSection').style.display = 'block'; 
             document.getElementById('previewSection').style.display = 'none'; 
+            window.scrollTo(0,0);
         }
     </script>
 </body>
-                </html>
+                    </html>
